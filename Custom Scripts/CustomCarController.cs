@@ -36,6 +36,7 @@ namespace CustomControls{
 
         [SerializeField] private Transform[] wheelMeshs;
         [SerializeField] private WheelCollider[] wheelColliders;
+        [SerializeField] private bool moveWheelFreely = false;
         [SerializeField] private Transform com;
         [SerializeField] private DriveType driveType;
 
@@ -110,7 +111,7 @@ namespace CustomControls{
 
             // setting Parent to null so, wheels can move freely along colliders
             foreach (Transform t in wheelMeshs)
-                t.parent = null;
+                if (moveWheelFreely) t.parent = null;
 
             if(gears == null){
                 currentGear = new Gear { gearPower = 1.298f,speedReq = 20f };
@@ -128,9 +129,9 @@ namespace CustomControls{
 
         private void AlignWheels(){
                for(int i = 0; i < wheelColliders.Length; ++i){
-                wheelColliders[i].GetWorldPose(out pos, out rot);
-                wheelMeshs[i].position = pos;
-                wheelMeshs[i].rotation = rot;
+                 wheelColliders[i].GetWorldPose(out pos, out rot);
+                 wheelMeshs[i].position = Vector3.Lerp(wheelMeshs[i].position, pos, CarSpeed() * Time.smoothDeltaTime);
+                 wheelMeshs[i].rotation = Quaternion.Lerp(wheelMeshs[i].rotation, rot, CarSpeed() * Time.smoothDeltaTime);
                }
                ManageCarPhysics();
         }

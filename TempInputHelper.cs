@@ -33,7 +33,7 @@ public class TempInputHelper : MonoBehaviour
         else brake = 0;
 
 
-        print("Car Speed : " + controller.CarSpeed());
+        // print("Car Speed : " + controller.CarSpeed());
 
         controller.MoveCar(y, x, brake);
     }

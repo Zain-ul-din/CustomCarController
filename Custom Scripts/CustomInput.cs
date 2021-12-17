@@ -34,9 +34,9 @@ namespace CustomControls{
         private Button gearBtn;
         private bool isReversing;
 
-        [SerializeField] private CustomUIButton raceBtn , brakeBtn , leftMoveBtn , rightMoveBtn;
-
-        private CustomCarController controller;
+        public CustomUIButton raceBtn , brakeBtn , leftMoveBtn , rightMoveBtn;
+        public SteeringWheel steer;
+        [SerializeField]private  CustomCarController controller;
 
         [SerializeField] private ControlType controlType;
         [SerializeField]private float gyroScopeSens = 2f;
@@ -44,35 +44,45 @@ namespace CustomControls{
         public event EventHandler<ControlType> OnControlChange;
 
         internal float accl, brakeFlag, steerInput , left , right;
+        
         #endregion
 
         #region Build In
         private void Awake()
         => instance = this;
 
-        private void Start()
-        => 
+        private void OnEnable()
+            => 
         SetUp();
+
+        private void Update()
+            => InputUpdate();
+
         #endregion
 
         #region Custom Method
         private void SetUp(){
             
+            /*
             // gear Toggler
             gearBtn.onClick.AddListener(() =>{
                 isReversing = !isReversing;
                 // More Actions
             });
-
-
+                
+            */
+          //  controller = CustomCarController.Instance;
+           // if (controller == null) controller = FindObjectOfType<CustomCarController>();
+            
         }
 
-        private void BtnUpdate(){
+        private void InputUpdate(){
 
             switch (controlType){
                 case ControlType.SteeringControl:
                    accl = (raceBtn.isPressing) ? (isReversing) ? -1 : 1: 0f;
                    brakeFlag = (brakeBtn.isPressing) ? 1f : 0f;
+                   steerInput = steer.GetClampedValue();
                 break;
                 case ControlType.BtnControls:
                     accl = (raceBtn.isPressing) ? (isReversing) ? -1 : 1 : 0f;
@@ -80,6 +90,7 @@ namespace CustomControls{
 
                     left = (leftMoveBtn.isPressing) ? -1 : 0f;
                     right = (rightMoveBtn.isPressing) ? 1 : 0f;
+                    
                     steerInput = (left > right) ? left : right;
                 break;
                 case ControlType.GyroControls:
@@ -88,15 +99,16 @@ namespace CustomControls{
                     steerInput = Input.acceleration.x * gyroScopeSens;
                 break;
                 case ControlType.KeyboardControl:
-                    accl = Input.GetAxis("vertical");
+                    accl = Input.GetAxis("Vertical");
                     steerInput = Input.GetAxis("Horizontal");
-
                     brakeFlag = (Input.GetKey(KeyCode.Space)) ? 1f : 0f;
                     if (Input.GetKeyDown(KeyCode.R)) isReversing = !isReversing;
+                    
                 break;
             }
-
+            
             controller.MoveCar(accl, steerInput, brakeFlag);
+            
         }
         #endregion
 
